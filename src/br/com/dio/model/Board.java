@@ -16,7 +16,7 @@ public class Board {
         this.spaces = spaces;
     }
 
-    public List<List<Space>> getSpace() {
+    public List<List<Space>> getSpaces() {
         return spaces;
     }
 

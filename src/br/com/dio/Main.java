@@ -10,6 +10,7 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static br.com.dio.util.BoardTemplate.BOARD_TEMPLATE;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -42,7 +43,7 @@ public class Main {
 
             option = scanner.nextInt();
 
-            switch (option){
+            switch (option) {
                 case 1 -> startGame(positions);
                 case 2 -> inputNumber();
                 case 3 -> removeNumber();
@@ -55,8 +56,9 @@ public class Main {
             }
         }
     }
+
     private static void startGame(Map<String, String> positions) {
-        if (nonNull(board)){
+        if (nonNull(board)) {
             System.out.println("O jogo já foi iniciado");
             return;
         }
@@ -79,7 +81,7 @@ public class Main {
 
 
     private static void inputNumber() {
-        if (isNull(board)){
+        if (isNull(board)) {
             System.out.println("O jogo ainda não foi iniciado");
             return;
         }
@@ -96,7 +98,7 @@ public class Main {
     }
 
     private static void removeNumber() {
-        if (isNull(board)){
+        if (isNull(board)) {
             System.out.println("O jogo ainda não foi iniciado");
             return;
         }
@@ -105,22 +107,74 @@ public class Main {
         var col = runUntilGetValidNumber(0, 8);
         System.out.println("Informe a linha em que o número será removido");
         var row = runUntilGetValidNumber(0, 8);
-        System.out.printf("Informe o número que deseja remover na posição [%s,%s]\n", col, row);
         if (!board.clearValue(col, row)) {
             System.out.printf("A posição [%s, %s] tem um valor fixo\n", col, row);
         }
     }
 
     private static void showCurrentGame() {
+        if (isNull(board)) {
+            System.out.println("O jogo ainda não foi iniciado");
+            return;
+        }
+
+        var args = new Object[81];
+        var argPos = 0;
+        for (int i = 0; i < BOARD_LIMIT; i++) {
+            for (var col : board.getSpaces()) {
+                args[argPos++] = " " + ((isNull(col.get(i).getActual())) ? " " : col.get(i).getActual());
+            }
+        }
+        System.out.println("Seu jogo se encontra da seguinte forma:");
+        System.out.printf((BOARD_TEMPLATE) + "%n", args);
     }
 
     private static void showGameStatus() {
+        if (isNull(board)) {
+            System.out.println("O jogo ainda não foi iniciado");
+            return;
+        }
+
+        System.out.printf("Seu jogo se encontra da seguinte forma: %s\n", board.getStatus().getLabel());
+        if (board.hasErrors()) {
+            System.out.println("O jogo contém erros");
+        } else {
+            System.out.println("O jogo não contém erros");
+        }
     }
 
     private static void clearGame() {
+        if (isNull(board)) {
+            System.out.println("O jogo ainda não foi iniciado");
+            return;
+        }
+
+        System.out.println("Tem certeza que deseja limpar seu jogo?");
+        var confirm = scanner.next();
+        while (!confirm.equalsIgnoreCase("sim") && !confirm.equalsIgnoreCase("não")) {
+            System.out.println("Informe 'sim' ou 'não'");
+            confirm = scanner.next();
+        }
+            if(confirm.equalsIgnoreCase("sim")){
+                board.reset();
+        }
     }
 
     private static void finishGame() {
+        if (isNull(board)){
+            System.out.println("O jogo ainda não foi iniciado");
+            return;
+        }
+
+        if (board.gameIsFinished()) {
+            System.out.println("Parabéns! Você concluiu o jogo.");
+            showCurrentGame();
+            board = null;
+        } else if (board.hasErrors()){
+            System.out.println("Seu jogo contém erros, verifique os números e ajuste suas respostas");
+        } else {
+            System.out.println("Ainda há espaços em branco º-º");
+        }
     }
 
     private static int runUntilGetValidNumber(final int min, final int max) {
